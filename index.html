@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitter ID ワンタップ検索ツール</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            width: calc(100% - 22px);
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        ul {
+            padding-left: 20px;
+            list-style-type: none;
+        }
+        li {
+            margin: 5px 0;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Twitter ID ワンタップ検索ツール</h1>
+    <input type="text" id="twitterID" placeholder="Twitter IDを入力" />
+    <button onclick="addUser()">IDを追加</button>
+    
+    <h2>登録されたID一覧</h2>
+    <ul id="userList"></ul>
+
+    <h2>検索リンク</h2>
+    <ul id="searchLinks"></ul>
+
+    <script>
+        // ローカルストレージからユーザーリストを取得
+        function loadUserList() {
+            const userList = JSON.parse(localStorage.getItem("twitterUserList")) || [];
+            return userList;
+        }
+
+        // ユーザーIDを追加
+        function addUser() {
+            const twitterID = document.getElementById("twitterID").value.trim();
+            if (twitterID && !userList.includes(twitterID)) {
+                userList.push(twitterID);
+                localStorage.setItem("twitterUserList", JSON.stringify(userList));
+                document.getElementById("twitterID").value = "";
+                displayUserList();
+            }
+        }
+
+        // ユーザーIDを削除
+        function deleteUser(twitterID) {
+            const index = userList.indexOf(twitterID);
+            if (index > -1) {
+                userList.splice(index, 1);
+                localStorage.setItem("twitterUserList", JSON.stringify(userList));
+                displayUserList();
+            }
+        }
+
+        // ユーザーIDを表示
+        function displayUserList() {
+            const userListElement = document.getElementById("userList");
+            const searchLinksElement = document.getElementById("searchLinks");
+            userListElement.innerHTML = '';
+            searchLinksElement.innerHTML = '';
+            
+            userList.forEach(user => {
+                // ユーザーID表示
+                const listItem = document.createElement("li");
+                listItem.innerText = `@${user}`;
+                
+                // 削除ボタンを追加
+                const deleteButton = document.createElement("button");
+                deleteButton.innerText = "削除";
+                deleteButton.onclick = () => deleteUser(user);
+                listItem.appendChild(deleteButton);
+                
+                userListElement.appendChild(listItem);
+
+                // 検索リンク表示
+                const searchLink = document.createElement("li");
+                const link = document.createElement("a");
+                link.href = `https://twitter.com/search?q=from:${user}`;
+                link.target = "_blank";
+                link.innerText = `🔍 from:${user}`;
+                searchLink.appendChild(link);
+                searchLinksElement.appendChild(searchLink);
+            });
+        }
+
+        // 初期ロード時にユーザーリストを表示
+        const userList = loadUserList();
+        displayUserList();
+    </script>
+</body>
+</html>
